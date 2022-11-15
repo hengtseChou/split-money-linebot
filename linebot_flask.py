@@ -2,13 +2,14 @@ from __future__ import unicode_literals
 import os
 import pandas as pd
 from datetime import datetime
+import time
 from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
-from drive_method import drive_method
+from drive_method import drive_method, new_entry
 
 app = Flask(__name__)
 
@@ -44,21 +45,14 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def receive_message_and_edit_file(event):
     
-    if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
+    if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364" or event.source.user_id == "U3288aae77c04c706f1e72cf8e7f1fff5":
 
         if 'hank' in event.message.text or 'Hank' in event.message.text:
             message = event.message.text
             amount = message.split(' ')[-1]
 
-            drive = drive_method()
-            drive.download('ledger.csv', config.get('drive-api', 'file_id')) 
-
-            df = pd.read_csv('ledger.csv')
-            new_row = pd.Series({'date': datetime.now().strftime("%Y/%m/%d, %H:%M"), 'hank': amount, 'lala': 0})
-            df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
-            df.to_csv('ledger.csv', index=False)
-
-            drive.update('ledger.csv', config.get('drive-api', 'file_id'))
+            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+            new_entry(drive, 'hank', amount)
 
             line_bot_api.reply_message(
             event.reply_token,
@@ -68,15 +62,8 @@ def receive_message_and_edit_file(event):
             message = event.message.text
             amount = message.split(' ')[-1]
 
-            drive = drive_method()
-            drive.download('ledger.csv', config.get('drive-api', 'file_id')) 
-            
-            df = pd.read_csv('ledger.csv')
-            new_row = pd.Series({'date': datetime.now().strftime("%Y/%m/%d, %H:%M"), 'hank': 0, 'lala': amount})
-            df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
-            df.to_csv('ledger.csv', index=False)
-
-            drive.update('ledger.csv', config.get('drive-api', 'file_id'))
+            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+            new_entry(drive, 'lala', amount)
 
             line_bot_api.reply_message(
             event.reply_token,
@@ -84,21 +71,18 @@ def receive_message_and_edit_file(event):
 
         elif '結算' in event.message.text or '結清' in event.message.text or '算帳' in event.message.text:
 
-            drive = drive_method()
-            drive.download('ledger.csv', config.get('drive-api', 'file_id')) 
-            
+            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+            drive.download()            
             df = pd.read_csv('ledger.csv')
 
             hank_minus_lala = df.hank.sum() - df.lala.sum()
 
             if hank_minus_lala > 0:
-
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='Lala 要給 Hank ' + str(hank_minus_lala) + '元!\n帳目已結清'))
 
             elif hank_minus_lala < 0:
-
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='Hank 要給 Lala ' + str(hank_minus_lala*-1) + '元!\n帳目已結清'))
@@ -110,11 +94,48 @@ def receive_message_and_edit_file(event):
 
             df = df[0:0]
             df.to_csv('ledger.csv', index=False)
-            drive.update('ledger.csv', config.get('drive-api', 'file_id'))
+            drive.upload()
 
+        elif '偷看一下' in event.message.text:
+            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+            drive.download()
+            df = pd.read_csv('ledger.csv')
+            if df.empty:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='現在是空的!'))
+            else:
+                text = df.to_string(index=False)
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='偷看一下! \n----------------\n' + text))
 
-
-
+        elif '功能表' in event.message.text or '指令表' in event.message.text:
+            line_bot_api.reply_message(
+                event.reply_token, 
+                TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n導覽頁面->指令表/功能表')
+            )
+    if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364":
+        if '寶寶' in event.message.text:
+            if event.source.type == 'group':
+                id = event.source.group_id
+            else:
+                id = 'U0e99829e94c36b375cdd8ecce89e7364'
+            line_bot_api.push_message(
+            id,
+            TextSendMessage(text='是喔'))
+            time.sleep(0.5)
+            line_bot_api.push_message(
+            id,
+            TextSendMessage(text='澳草喔'))
+            time.sleep(0.5)
+            line_bot_api.push_message(
+            id,
+            TextSendMessage(text='愛你喔'))
+            time.sleep(0.5)
+            line_bot_api.push_message(
+            id,
+            TextSendMessage(text='寶寶'))   
 
 if __name__ == "__main__":
     app.run(debug=True)
