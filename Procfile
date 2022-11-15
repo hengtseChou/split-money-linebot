@@ -1,1 +1,1 @@
-web: gunicorn linebot_flask:app –preload
+web: gunicorn linebot_flask:app
