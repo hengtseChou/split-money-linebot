@@ -31,7 +31,7 @@ def callback():
 
     return 'OK'
 
-# 學你說話
+
 @handler.add(MessageEvent, message=TextMessage)
 def echo(event):
     
@@ -42,4 +42,4 @@ def echo(event):
         )
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
