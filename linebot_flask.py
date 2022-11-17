@@ -41,9 +41,10 @@ def callback():
 
     return 'OK'
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['POST'])
 def wake():
     print('wakey! called by clock.py')
+    return 'OK'
 
 
 @handler.add(MessageEvent, message=TextMessage)
