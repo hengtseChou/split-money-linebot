@@ -41,10 +41,16 @@ def callback():
 
     return 'OK'
 
+@app.route('/', methods=['GET', 'POST'])
+def wake():
+    print('wakey! called by clock.py')
+
 
 @handler.add(MessageEvent, message=TextMessage)
-def receive_message_and_edit_file(event):
-    
+def receive_message_and_edit_file(event):    
+
+    # main feature of split money linebot
+    # hank and lala only
     if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364" or event.source.user_id == "U3288aae77c04c706f1e72cf8e7f1fff5":
 
         if 'hank' in event.message.text or 'Hank' in event.message.text:

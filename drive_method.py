@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 
-
+# load/refresh access token and save to local
 def authorize_drive():
         gauth = GoogleAuth()
         gauth.DEFAULT_SETTINGS['client_config_file'] = "client_secret.json"
@@ -24,6 +24,9 @@ def authorize_drive():
         
         return GoogleDrive(gauth)
 
+
+# drive method: for a given file in google drive, it can be downloaded or uploaded
+# file name and id must be consistent
 class drive_method(object):
 
     def download(self):
@@ -42,6 +45,7 @@ class drive_method(object):
         self.local_path = local_path
         self.file_id = file_id
 
+# adding new entry to ledger.csv via drive_method object
 def new_entry(drive_object, payer, amount):
 
     drive_object.download() 
