@@ -48,9 +48,9 @@ def new_entry(drive_object, payer, amount):
             
     df = pd.read_csv('ledger.csv')
     if payer == 'lala':
-        new_row = pd.Series({'date': datetime.now().strftime("%m/%d"), 'hank': 0, 'lala': amount})
+        new_row = pd.Series({'date': datetime.now().strftime("%m/%d, %H%M%S"), 'hank': 0, 'lala': amount})
     elif payer == 'hank':
-        new_row = pd.Series({'date': datetime.now().strftime("%m/%d"), 'hank': amount, 'lala': 0})
+        new_row = pd.Series({'date': datetime.now().strftime("%m/%d, %H%M%S"), 'hank': amount, 'lala': 0})
     df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
     df.to_csv('ledger.csv', index=False)
 
