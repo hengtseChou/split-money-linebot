@@ -1,7 +1,7 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 
@@ -47,10 +47,11 @@ def new_entry(drive_object, payer, amount):
     drive_object.download() 
             
     df = pd.read_csv('ledger.csv')
+    now_time_gmt_plus_8 = datetime.now() + timedelta(hours=8)
     if payer == 'lala':
-        new_row = pd.Series({'date': datetime.now().strftime("%m/%d, %H%M%S"), 'hank': 0, 'lala': amount})
+        new_row = pd.Series({'date': now_time_gmt_plus_8.strftime("%m/%d"), 'hank': 0, 'lala': amount})
     elif payer == 'hank':
-        new_row = pd.Series({'date': datetime.now().strftime("%m/%d, %H%M%S"), 'hank': amount, 'lala': 0})
+        new_row = pd.Series({'date': now_time_gmt_plus_8.strftime("%m/%d"), 'hank': amount, 'lala': 0})
     df = pd.concat([df, new_row.to_frame().T], ignore_index=True)
     df.to_csv('ledger.csv', index=False)
 

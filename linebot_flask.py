@@ -1,8 +1,8 @@
-from __future__ import unicode_literals
 import os
+import time
+import configparser
 import pandas as pd
 from datetime import datetime
-import time
 from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
@@ -13,7 +13,7 @@ from drive_method import drive_method, new_entry
 
 app = Flask(__name__)
 
-import configparser
+
 
 # LINE 聊天機器人的基本資料
 config = configparser.ConfigParser()
