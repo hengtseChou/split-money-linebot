@@ -9,6 +9,9 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
+import urllib
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from drive_method import drive_method, new_entry
 
 app = Flask(__name__)
@@ -150,5 +153,20 @@ def receive_message_and_edit_file(event):
             id,
             TextSendMessage(text='寶寶'))   
 
-if __name__ == "__main__":
+# use scheduler to wake up app at daytime
+# every 15 mins on 3pm-3am
+# , hour = '7-19'
+sched = BackgroundScheduler()
+
+@sched.scheduled_job('cron', minute='*/2')
+def scheduled_job():
+    url = "https://split-money-linebot.onrender.com/"
+    conn = urllib.request.urlopen(url)
+        
+    for key, value in conn.getheaders():
+        print(key, value)
+
+sched.start()
+
+if __name__ == "__main__":    
     app.run(debug=True)
