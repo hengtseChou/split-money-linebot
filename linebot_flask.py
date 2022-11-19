@@ -45,7 +45,7 @@ def callback():
     return 'OK'
 
 def wake():
-    print('wake up! called by clock.py')
+    print('wake up! called by APScheduler.')
 
 @app.route('/', methods=['GET', 'POST'])
 def wake_server():
@@ -129,8 +129,32 @@ def receive_message_and_edit_file(event):
         elif '功能表' in event.message.text or '指令表' in event.message.text:
             line_bot_api.reply_message(
                 event.reply_token, 
-                TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n導覽頁面->指令表/功能表')
+                TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n帳目試算->算一下/試算\n導覽頁面->指令表/功能表')
             )
+
+        elif '試算' in event.message.text or '算一下' in event.message.text:
+
+            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+            drive.download()            
+            df = pd.read_csv('ledger.csv')
+
+            hank_minus_lala = df.hank.sum() - df.lala.sum()
+
+            if hank_minus_lala > 0:
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Lala 現在欠 Hank ' + str(hank_minus_lala) + '元喔!'))
+
+            elif hank_minus_lala < 0:
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Hank 現在欠 Lala ' + str(hank_minus_lala*-1) + '元喔!'))
+
+            elif hank_minus_lala == 0:
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='現在剛好花一樣錢喔!'))
+
     if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364":
         if '寶寶' in event.message.text:
             if event.source.type == 'group':
