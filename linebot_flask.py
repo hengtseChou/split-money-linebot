@@ -73,6 +73,7 @@ def receive_message_and_edit_file(event):
             line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
+            print('ran new entry.')
 
         elif 'lala' in event.message.text or 'Lala' in event.message.text:
             message = event.message.text
@@ -84,6 +85,7 @@ def receive_message_and_edit_file(event):
             line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
+            print('ran new entry.')
 
         elif '結算' in event.message.text or '結清' in event.message.text or '算帳' in event.message.text:
 
@@ -111,6 +113,7 @@ def receive_message_and_edit_file(event):
             df = df[0:0]
             df.to_csv('ledger.csv', index=False)
             drive.upload()
+            print('ledger settled')
 
         elif '偷看一下' in event.message.text:
             drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
@@ -125,12 +128,14 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n----------------\n' + text))
+            print('take a look of the ledger')
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
             line_bot_api.reply_message(
                 event.reply_token, 
                 TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表')
             )
+            print('shown menu')
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
 
@@ -154,6 +159,7 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='現在剛好花一樣錢喔!'))
+            print('show current amount')
 
     if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364":
         if '寶寶' in event.message.text:

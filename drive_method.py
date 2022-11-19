@@ -32,13 +32,13 @@ class drive_method(object):
     def download(self):
         file = self.drive.CreateFile({'id': self.file_id})
         file.GetContentFile(self.local_path)
-        print('download done')
+        # print('download done')
 
     def upload(self):
         file = self.drive.CreateFile({'id': self.file_id})
         file.SetContentFile(self.local_path)
         file.Upload()
-        print('update done')
+        # print('update done')
 
     def __init__(self, local_path, file_id):
         self.drive = authorize_drive()
