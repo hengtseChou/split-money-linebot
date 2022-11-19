@@ -129,7 +129,7 @@ def receive_message_and_edit_file(event):
         elif '功能表' in event.message.text or '指令表' in event.message.text:
             line_bot_api.reply_message(
                 event.reply_token, 
-                TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n帳目試算->算一下/試算\n導覽頁面->指令表/功能表')
+                TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表')
             )
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
