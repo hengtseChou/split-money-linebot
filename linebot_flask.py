@@ -42,7 +42,7 @@ def callback():
     return 'OK'
 
 def wake():
-    print('wakey! called by clock.py')
+    print('wake up! called by clock.py')
 
 @app.route('/', methods=['GET', 'POST'])
 def wake_server():

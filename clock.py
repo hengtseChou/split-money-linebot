@@ -1,10 +1,11 @@
 import urllib
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
-sched = BlockingScheduler()
+sched = BackgroundScheduler()
 
 # use scheduler to wake up app at daytime
-@sched.scheduled_job('cron', minute='*/3', hour = '0-18')
+# every 15 mins on 3pm-3am
+@sched.scheduled_job('cron', minute='*/15', hour = '7-19')
 def scheduled_job():
     url = "https://split-money-linebot.onrender.com/"
     conn = urllib.request.urlopen(url)
