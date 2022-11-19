@@ -155,10 +155,9 @@ def receive_message_and_edit_file(event):
 
 # use scheduler to wake up app at daytime
 # every 15 mins on 3pm-3am
-# , hour = '7-19'
 sched = BackgroundScheduler()
 
-@sched.scheduled_job('cron', minute='*/2')
+@sched.scheduled_job('cron', minute='*/14', hour = '7-19')
 def scheduled_job():
     url = "https://split-money-linebot.onrender.com/"
     conn = urllib.request.urlopen(url)
