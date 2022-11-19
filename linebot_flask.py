@@ -3,7 +3,7 @@ import time
 import configparser
 import pandas as pd
 from datetime import datetime
-from flask import Flask, request, abort
+from flask import Flask, request, abort, Response
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -41,10 +41,16 @@ def callback():
 
     return 'OK'
 
-@app.route('/', methods=['POST'])
 def wake():
     print('wakey! called by clock.py')
-    return 'OK'
+
+@app.route('/', methods=['GET', 'POST'])
+def wake_server():
+    try:
+        result = wake()
+    except Exception as e:
+        return Response('Error: {}'.format(str(e)), status=500)
+    return Response(result, status=200)
 
 
 @handler.add(MessageEvent, message=TextMessage)
