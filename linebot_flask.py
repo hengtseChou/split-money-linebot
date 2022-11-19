@@ -184,10 +184,10 @@ def receive_message_and_edit_file(event):
             TextSendMessage(text='寶寶'))   
 
 # use scheduler to wake up app at daytime
-# every 15 mins on 3pm-3am
+# every 15 mins on 8pm-3am
 sched = BackgroundScheduler()
 
-@sched.scheduled_job('cron', minute='*/14', hour = '7-19')
+@sched.scheduled_job('cron', minute='*/14', hour = '12-19')
 def scheduled_job():
     url = "https://split-money-linebot.onrender.com/"
     conn = urllib.request.urlopen(url)
