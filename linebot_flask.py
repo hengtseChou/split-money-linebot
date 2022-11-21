@@ -10,6 +10,7 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 import urllib
+from pytz import utc
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from drive_method import drive_method, new_entry
@@ -44,8 +45,7 @@ def callback():
 
     return 'OK'
 
-def wake():
-    print('wake up! called by APScheduler.')
+
 
 @app.route('/', methods=['GET', 'POST'])
 def wake_server():
@@ -185,9 +185,10 @@ def receive_message_and_edit_file(event):
 
 # use scheduler to wake up app at daytime
 # every 15 mins on 8pm-3am
-sched = BackgroundScheduler()
+# now testing 8am -3am
+sched = BackgroundScheduler(timezone = utc)
 
-@sched.scheduled_job('cron', minute='*/14', hour = '12-19')
+@sched.scheduled_job('cron', minute='*/2', hour = '0-19')
 def scheduled_job():
     url = "https://split-money-linebot.onrender.com/"
     conn = urllib.request.urlopen(url)
@@ -195,7 +196,9 @@ def scheduled_job():
     for key, value in conn.getheaders():
         print(key, value)
 
-sched.start()
+def wake():
+    print('wake up! called by APScheduler.')
 
-if __name__ == "__main__":    
+if __name__ == "__main__":   
+    sched.start() 
     app.run(debug=True)
