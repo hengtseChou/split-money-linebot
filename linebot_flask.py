@@ -10,9 +10,6 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 import urllib
-from pytz import utc
-from apscheduler.schedulers.background import BackgroundScheduler
-
 from drive_method import drive_method, new_entry
 
 app = Flask(__name__)
@@ -44,17 +41,6 @@ def callback():
         abort(400)
 
     return 'OK'
-
-
-
-@app.route('/', methods=['GET', 'POST'])
-def wake_server():
-    try:
-        result = wake()
-    except Exception as e:
-        return Response('Error: {}'.format(str(e)), status=500)
-    return Response(result, status=200)
-
 
 @handler.add(MessageEvent, message=TextMessage)
 def receive_message_and_edit_file(event):    
@@ -184,21 +170,18 @@ def receive_message_and_edit_file(event):
             TextSendMessage(text='寶寶'))   
 
 # use scheduler to wake up app at daytime
-# every 15 mins on 8pm-3am
-# now testing 8am -3am
-sched = BackgroundScheduler(timezone = utc)
-
-@sched.scheduled_job('cron', minute='*/2', hour = '0-19')
-def scheduled_job():
-    url = "https://split-money-linebot.onrender.com/"
-    conn = urllib.request.urlopen(url)
-        
-    for key, value in conn.getheaders():
-        print(key, value)
+# every 15 mins on 8pm-3am, taipei time
 
 def wake():
-    print('wake up! called by APScheduler.')
+    print('wake up! called by cron-job.org')
+
+@app.route('/', methods=['GET', 'POST'])
+def wake_server():
+    try:
+        result = wake()
+    except Exception as e:
+        return Response('Error: {}'.format(str(e)), status=500)
+    return Response(result, status=200)
 
 if __name__ == "__main__":   
-    sched.start() 
     app.run(debug=True)
