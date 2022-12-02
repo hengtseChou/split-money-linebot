@@ -122,10 +122,17 @@ def receive_message_and_edit_file(event):
                     event.reply_token,
                     TextSendMessage(text='現在是空的!'))
             else:
-                text = df.to_string(index=False)
+                text = df.to_string(index=False).split('\n')
+                nlines = len(text)
+                segment_text = str
+                for i in range(nlines):
+                    segment_text += text[i]
+                    segment_text += '\n'
+                    if i % 9 == 0:
+                        segment_text += 'n----------------\n'
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='偷看一下! \n----------------\n' + text))
+                    TextSendMessage(text='偷看一下! \n----------------\n' + segment_text))
             print('take a look of the ledger')
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
