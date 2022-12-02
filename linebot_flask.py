@@ -128,8 +128,8 @@ def receive_message_and_edit_file(event):
                 for i in range(nlines):
                     segment_text += text[i]
                     segment_text += '\n'
-                    if i % 9 == 0:
-                        segment_text += 'n----------------\n'
+                    if i % 10 == 0 and i != 0:
+                        segment_text += '------------------\n'
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n----------------\n' + segment_text))
