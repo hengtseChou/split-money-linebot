@@ -202,5 +202,9 @@ def wake_server():
         return Response('Error: {}'.format(str(e)), status=500)
     return Response(result, status=200)
 
+@app.route('/health-check', methods = ['GET'])
+def health_check():
+    return 'OK'
+
 if __name__ == "__main__":   
-    app.run(debug=True)
+    app.run()
