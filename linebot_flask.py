@@ -53,25 +53,37 @@ def receive_message_and_edit_file(event):
             message = event.message.text
             amount = message.split(' ')[-1]
 
-            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-            new_entry(drive, 'hank', amount)
+            if amount.isdigit():
+                drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+                new_entry(drive, 'hank', amount)
 
-            line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
-            print('ran new entry.')
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
+                print('ran new entry.')
+            else:
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='格式不對 要重新輸入!'))
+
 
         elif 'lala' in event.message.text or 'Lala' in event.message.text:
             message = event.message.text
             amount = message.split(' ')[-1]
 
-            drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-            new_entry(drive, 'lala', amount)
+            if amount.isdigit():
+                drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+                new_entry(drive, 'lala', amount)
 
-            line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
-            print('ran new entry.')
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
+                print('ran new entry.')
+            else:
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='格式不對 要重新輸入!'))
+
 
         elif '結算' in event.message.text or '結清' in event.message.text or '算帳' in event.message.text:
 
