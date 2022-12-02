@@ -124,7 +124,7 @@ def receive_message_and_edit_file(event):
             else:
                 text = df.to_string(index=False).split('\n')
                 nlines = len(text)
-                segment_text = str
+                segment_text = ''
                 for i in range(nlines):
                     segment_text += text[i]
                     segment_text += '\n'
