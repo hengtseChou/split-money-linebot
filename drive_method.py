@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 # load/refresh access token and save to local
 def authorize_drive():
         gauth = GoogleAuth()
-        gauth.DEFAULT_SETTINGS['client_config_file'] = "client_secret.json"
+        gauth.DEFAULT_SETTINGS['client_config_file'] = "config/client_secret.json"
 
-        gauth.LoadCredentialsFile("mycreds.txt")
+        gauth.LoadCredentialsFile("config/mycreds.txt")
         if gauth.credentials is None:
             # Authenticate if they're not there
             gauth.LocalWebserverAuth()
@@ -20,7 +20,7 @@ def authorize_drive():
             # Initialize the saved creds
             gauth.Authorize()
         # Save the current credentials to a file
-        gauth.SaveCredentialsFile("mycreds.txt")
+        gauth.SaveCredentialsFile("config/mycreds.txt")
         
         return GoogleDrive(gauth)
 
@@ -28,6 +28,11 @@ def authorize_drive():
 # drive method: for a given file in google drive, it can be downloaded or uploaded
 # file name and id must be consistent
 class drive_method(object):
+
+    def __init__(self, local_path, file_id):
+        self.drive = authorize_drive()
+        self.local_path = local_path
+        self.file_id = file_id
 
     def download(self):
         file = self.drive.CreateFile({'id': self.file_id})
@@ -40,10 +45,7 @@ class drive_method(object):
         file.Upload()
         # print('update done')
 
-    def __init__(self, local_path, file_id):
-        self.drive = authorize_drive()
-        self.local_path = local_path
-        self.file_id = file_id
+    
 
 # adding new entry to ledger.csv via drive_method object
 def new_entry(drive_object, payer, amount):
