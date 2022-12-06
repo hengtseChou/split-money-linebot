@@ -129,10 +129,10 @@ def receive_message_and_edit_file(event):
                     segment_text += text[i]
                     segment_text += '\n'
                     if i % 10 == 0 and i != 0:
-                        segment_text += '-------------------------\n'
+                        segment_text += '-----------------\n'
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='偷看一下! \n----------------\n' + segment_text.strip('\n')))
+                    TextSendMessage(text='偷看一下! \n-----------------\n' + segment_text.strip('\n')))
             print('take a look of the ledger')
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
