@@ -23,6 +23,10 @@ config.read('config/config.ini')
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
+# user id
+hank_id = config.get('line-id', 'hank_id')
+lala_id = config.get('line-id', 'lala_id')
+
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -47,7 +51,7 @@ def receive_message_and_edit_file(event):
 
     # main feature of split money linebot
     # hank and lala only
-    if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364" or event.source.user_id == "U3288aae77c04c706f1e72cf8e7f1fff5":
+    if event.source.user_id == lala_id or event.source.user_id == hank_id:
 
         if 'hank' in event.message.text or 'Hank' in event.message.text:
             message = event.message.text
@@ -60,7 +64,7 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
-                print('ran new entry.')
+                print('New record entered.')
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -78,7 +82,7 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
-                print('ran new entry.')
+                print('New record entered.')
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -111,7 +115,7 @@ def receive_message_and_edit_file(event):
             df = df[0:0]
             df.to_csv('ledger.csv', index=False)
             drive.upload()
-            print('ledger settled')
+            print('Ledger settled.')
 
         elif '偷看一下' in event.message.text:
             drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
@@ -133,14 +137,14 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n-----------------\n' + segment_text.strip('\n')))
-            print('take a look of the ledger')
+            print('Ledger screenshot. ')
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
             line_bot_api.reply_message(
                 event.reply_token, 
                 TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表')
             )
-            print('shown menu')
+            print('Shown menu.')
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
 
@@ -164,14 +168,14 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='現在剛好花一樣錢喔!'))
-            print('show current amount')
+            print('Show current amount.')
 
-    if event.source.user_id == "U0e99829e94c36b375cdd8ecce89e7364":
+    if event.source.user_id == lala_id:
         if '寶寶' in event.message.text:
             if event.source.type == 'group':
                 id = event.source.group_id
             else:
-                id = 'U0e99829e94c36b375cdd8ecce89e7364'
+                id = lala_id
             line_bot_api.push_message(
             id,
             TextSendMessage(text='是喔'))
@@ -192,7 +196,7 @@ def receive_message_and_edit_file(event):
 # every 15 mins on 8pm-3am, taipei time
 
 def wake():
-    print('wake up! called by cron-job.org')
+    print('wake up!')
 
 @app.route('/', methods=['GET', 'POST'])
 def wake_server():
@@ -207,4 +211,4 @@ def health_check():
     return 'OK'
 
 if __name__ == "__main__":   
-    app.run()
+    app.run(debug=True)

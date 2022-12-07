@@ -42,7 +42,7 @@ class drive_method(object):
     def upload(self):
         file = self.drive.CreateFile({'id': self.file_id})
         file.SetContentFile(self.local_path)
-        file.Upload()
+        file.Upload(param = {'convert':True})
         # print('update done')
 
     
