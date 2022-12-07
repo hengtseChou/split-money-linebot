@@ -8,6 +8,7 @@ from flask import Flask, request, abort, Response
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from pydrive.files import ApiRequestError
 
 import urllib
 from drive_method import drive_method, new_entry
@@ -58,13 +59,19 @@ def receive_message_and_edit_file(event):
             amount = message.split(' ')[-1]
 
             if amount.isdigit():
-                drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-                new_entry(drive, 'hank', amount)
+                try:
+                    drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+                    new_entry(drive, 'hank', amount)
 
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
-                print('New record entered.')
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
+                    print('New record entered.')
+                except ApiRequestError as e:
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='連線異常! 發呆!!\n\n' + e))
+                    print('Drive server error.')
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -76,13 +83,19 @@ def receive_message_and_edit_file(event):
             amount = message.split(' ')[-1]
 
             if amount.isdigit():
-                drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-                new_entry(drive, 'lala', amount)
+                try:
+                    drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
+                    new_entry(drive, 'lala', amount)
 
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
-                print('New record entered.')
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
+                    print('New record entered.')
+                except ApiRequestError as e:
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='連線異常! 發呆!!\n\n' + e))
+                    print('Drive server error.')
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
