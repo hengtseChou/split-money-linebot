@@ -72,6 +72,11 @@ def receive_message_and_edit_file(event):
                     event.reply_token,
                     TextSendMessage(text='連線異常! 發呆!!\n\n' + e))
                     print('Drive server error.')
+                except Exception as e:
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='我怪怪的!!\n\n' + e))
+                    print('Some error.\n' + e)
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -96,6 +101,11 @@ def receive_message_and_edit_file(event):
                     event.reply_token,
                     TextSendMessage(text='連線異常! 發呆!!\n\n' + e))
                     print('Drive server error.')
+                except Exception as e:
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='我怪怪的!!\n\n' + e))
+                    print('Some error.\n' + e)
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
