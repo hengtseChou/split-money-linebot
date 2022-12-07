@@ -11,6 +11,7 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from pydrive.files import ApiRequestError
 
 import urllib
+import random
 from drive_method import drive_method, new_entry
 
 app = Flask(__name__)
@@ -27,6 +28,10 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 # user id
 hank_id = config.get('line-id', 'hank_id')
 lala_id = config.get('line-id', 'lala_id')
+
+# add random response
+
+resp = ['哈哈 真假', '0.0', '7414', '喵喵喵']
 
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
@@ -213,7 +218,13 @@ def receive_message_and_edit_file(event):
             time.sleep(0.5)
             line_bot_api.push_message(
             id,
-            TextSendMessage(text='寶寶'))   
+            TextSendMessage(text='寶寶')) 
+
+    num = random.randint(0, len(resp))
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=resp[num]))
+
 
 # use scheduler to wake up app at daytime
 # every 15 mins on 8pm-3am, taipei time
