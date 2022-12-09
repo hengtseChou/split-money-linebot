@@ -81,7 +81,7 @@ def receive_message_and_edit_file(event):
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
-                    print('Some error.\n' + e)
+                    print('Some error.\n' + str(e))
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -112,7 +112,7 @@ def receive_message_and_edit_file(event):
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
-                    print('Some error.\n' + e)
+                    print('Some error.\n' + str(e))
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
