@@ -75,17 +75,19 @@ def receive_message_and_edit_file(event):
                 except ApiRequestError as e:
                     line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='連線異常! 發呆!!\n\n' + e))
+                    TextSendMessage(text='連線異常! 發呆!!\n\n' + str(e)))
                     print('Drive server error.')
                 except Exception as e:
                     line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='我怪怪的!!\n\n' + e))
+                    TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
                     print('Some error.\n' + e)
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='格式不對 要重新輸入!'))
+
+            return
 
 
         elif 'lala' in event.message.text or 'Lala' in event.message.text:
@@ -104,17 +106,18 @@ def receive_message_and_edit_file(event):
                 except ApiRequestError as e:
                     line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='連線異常! 發呆!!\n\n' + e))
+                    TextSendMessage(text='連線異常! 發呆!!\n\n' + str(e)))
                     print('Drive server error.')
                 except Exception as e:
                     line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='我怪怪的!!\n\n' + e))
+                    TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
                     print('Some error.\n' + e)
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='格式不對 要重新輸入!'))
+            return
 
 
         elif '結算' in event.message.text or '結清' in event.message.text or '算帳' in event.message.text:
@@ -144,6 +147,7 @@ def receive_message_and_edit_file(event):
             df.to_csv('ledger.csv', index=False)
             drive.upload()
             print('Ledger settled.')
+            return
 
         elif '偷看一下' in event.message.text:
             drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
@@ -166,6 +170,7 @@ def receive_message_and_edit_file(event):
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n-----------------\n' + segment_text.strip('\n')))
             print('Ledger screenshot. ')
+            return
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
             line_bot_api.reply_message(
@@ -173,6 +178,7 @@ def receive_message_and_edit_file(event):
                 TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表')
             )
             print('Shown menu.')
+            return
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
 
@@ -197,6 +203,7 @@ def receive_message_and_edit_file(event):
                 event.reply_token,
                 TextSendMessage(text='現在剛好花一樣錢喔!'))
             print('Show current amount.')
+            return
 
     if event.source.user_id == lala_id:
         if '寶寶' in event.message.text:
@@ -219,8 +226,9 @@ def receive_message_and_edit_file(event):
             line_bot_api.push_message(
             id,
             TextSendMessage(text='寶寶')) 
+            return
 
-    num = random.randint(0, len(resp))
+    num = random.randint(0, len(resp)-1)
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=resp[num]))
