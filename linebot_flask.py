@@ -1,20 +1,19 @@
-import os
 import time
 import configparser
 import pandas as pd
-from datetime import datetime
-from flask import Flask, request, abort, Response
+from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from pydrive.files import ApiRequestError
 
-import urllib
 import random
+import logging
 from drive_method import drive_method, new_entry
 
 app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
 
 
 
@@ -71,17 +70,17 @@ def receive_message_and_edit_file(event):
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
-                    print('New record entered.')
+                    app.logger.info('New record entered.')
                 except ApiRequestError as e:
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='連線異常! 發呆!!\n\n' + str(e)))
-                    print('Drive server error.')
+                    app.logger.error('Drive server error.')
                 except Exception as e:
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
-                    print('Some error.\n' + str(e))
+                    app.logger.error('Some error.\n' + str(e))
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -102,17 +101,17 @@ def receive_message_and_edit_file(event):
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
-                    print('New record entered.')
+                    app.logger.info('New record entered.')
                 except ApiRequestError as e:
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='連線異常! 發呆!!\n\n' + str(e)))
-                    print('Drive server error.')
+                    app.logger.error('Drive server error.')
                 except Exception as e:
                     line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
-                    print('Some error.\n' + str(e))
+                    app.logger.error('Some error.\n' + str(e))
             else:
                 line_bot_api.reply_message(
                 event.reply_token,
@@ -146,7 +145,7 @@ def receive_message_and_edit_file(event):
             df = df[0:0]
             df.to_csv('ledger.csv', index=False)
             drive.upload()
-            print('Ledger settled.')
+            app.logger.info('Ledger settled.')
             return
 
         elif '偷看一下' in event.message.text:
@@ -169,7 +168,7 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n-----------------\n' + segment_text.strip('\n')))
-            print('Ledger screenshot. ')
+            app.logger.info('Ledger screenshot. ')
             return
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
@@ -177,7 +176,7 @@ def receive_message_and_edit_file(event):
                 event.reply_token, 
                 TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表')
             )
-            print('Shown menu.')
+            app.logger.info('Show menu')
             return
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
@@ -202,7 +201,7 @@ def receive_message_and_edit_file(event):
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='現在剛好花一樣錢喔!'))
-            print('Show current amount.')
+            app.logger.info('Show current amount.')
             return
 
     if event.source.user_id == lala_id:
@@ -234,19 +233,8 @@ def receive_message_and_edit_file(event):
         TextSendMessage(text=resp[num]))
 
 
-# use scheduler to wake up app at daytime
-# every 15 mins on 8pm-3am, taipei time
 
-def wake():
-    print('wake up!')
 
-@app.route('/', methods=['GET', 'POST'])
-def wake_server():
-    try:
-        result = wake()
-    except Exception as e:
-        return Response('Error: {}'.format(str(e)), status=500)
-    return Response(result, status=200)
 
 @app.route('/health-check', methods = ['GET'])
 def health_check():
