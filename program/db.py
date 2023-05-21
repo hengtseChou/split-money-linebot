@@ -10,14 +10,14 @@ class Mongo_object(object):
         db = client["money_bot"]
         self.collection = db["records"]
 
-    def insert_new(self, payer, item, amount):
+    def insert_new(self, payer, amount):
 
         now_time_gmt_plus_8 = datetime.now() + timedelta(hours=8)
         date = now_time_gmt_plus_8.strftime("%m/%d")
         if payer == 'hank':
-            new_insert = {'date':date, 'hank': int(amount), 'lala':0, 'item': item}
+            new_insert = {'date':date, 'hank': int(amount), 'lala':0}
         elif payer == 'lala':
-            new_insert = {'date':date, 'hank': 0, 'lala': int(amount), 'item': item}
+            new_insert = {'date':date, 'hank': 0, 'lala': int(amount)}
         x = self.collection.insert_one(new_insert)
         return x
     

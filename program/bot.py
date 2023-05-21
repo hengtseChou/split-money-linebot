@@ -124,12 +124,11 @@ def receive_message(event):
 
             message = event.message.text.split(' ')
             payer = message[0].lower()
-            item = message[1]
             amount = message[2]
 
             if amount.isdigit():
 
-                Mongo.insert_new(payer, item, amount)
+                Mongo.insert_new(payer, amount)
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text=''.join([payer, ' 付了 ', amount, '\n登記好了!'])))
