@@ -98,7 +98,7 @@ def receive_message(event):
             data = [dict(record) for record in records]
 
             if data:
-                table = tabulate(data, headers="keys", tablefmt="plain")
+                table = tabulate(data, headers="keys", tablefmt="plain", stralign='center', numalign="right")
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n-----------------------\n' + table)
