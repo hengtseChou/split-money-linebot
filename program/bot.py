@@ -1,32 +1,21 @@
 import time
-import configparser
-import pandas as pd
 from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from pydrive.files import ApiRequestError
 
 import random
 import logging
-from drive_method import drive_method, new_entry
+
+from program.config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, HANK_ID, LALA_ID
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 
 
-
-# LINE 聊天機器人的基本資料
-config = configparser.ConfigParser()
-config.read('config/config.ini')
-
-line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
-handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
-
-# user id
-hank_id = config.get('line-id', 'hank_id')
-lala_id = config.get('line-id', 'lala_id')
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(CHANNEL_SECRET)
 
 # add random response
 
@@ -56,7 +45,7 @@ def receive_message_and_edit_file(event):
 
     # main feature of split money linebot
     # hank and lala only
-    if event.source.user_id == lala_id or event.source.user_id == hank_id:
+    if event.source.user_id == LALA_ID or event.source.user_id == HANK_ID:
 
         if 'hank' in event.message.text or 'Hank' in event.message.text:
             message = event.message.text
@@ -204,12 +193,12 @@ def receive_message_and_edit_file(event):
             app.logger.info('Show current amount.')
             return
 
-    if event.source.user_id == lala_id:
+    if event.source.user_id == LALA_ID:
         if '寶寶' in event.message.text:
             if event.source.type == 'group':
                 id = event.source.group_id
             else:
-                id = lala_id
+                id = LALA_ID
             line_bot_api.push_message(
             id,
             TextSendMessage(text='是喔'))
