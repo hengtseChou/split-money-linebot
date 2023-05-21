@@ -14,7 +14,10 @@ class Mongo_object(object):
 
         now_time_gmt_plus_8 = datetime.now() + timedelta(hours=8)
         date = now_time_gmt_plus_8.strftime("%m/%d")
-        new_insert = {'date':date, 'payer':payer, 'item': item, 'amount': int(amount)}
+        if payer == 'hank':
+            new_insert = {'date':date, 'item': item, 'hank': int(amount), 'lala':0}
+        elif payer == 'lala':
+            new_insert = {'date':date, 'item': item, 'hank': 0, 'lala': int(amount)}
         x = self.collection.insert_one(new_insert)
         return x
     
@@ -28,8 +31,7 @@ class Mongo_object(object):
 
         for payer in ['hank', 'lala']:
             pipeline = [
-                {'$match': {'payer': payer}},
-                {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
+                {'$group': {'_id': None, 'total': {'$sum': '$'+payer}}}
             ]
             result = list(self.collection.aggregate(pipeline))
             if not result:
@@ -46,8 +48,9 @@ class Mongo_object(object):
 
         return pays_more, abs(sum_values[0] - sum_values[1])
     
-    def print_records(self):
+    def find_all(self):
         
-        return
+        cursor = self.collection.find({}, {'_id': 0})
+        return cursor
 
 Mongo = Mongo_object()

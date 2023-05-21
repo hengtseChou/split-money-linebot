@@ -7,6 +7,7 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 import random
 import logging
+from tabulate import tabulate
 
 from program.config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, HANK_ID, LALA_ID
 from program.db import Mongo
@@ -68,6 +69,7 @@ def receive_message(event):
 
             Mongo.clear()
             app.logger.info('Records reset.')
+            return
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
 
@@ -87,11 +89,27 @@ def receive_message(event):
                 event.reply_token,
                 TextSendMessage(text='現在剛好花一樣錢喔!'))
             app.logger.info('Show current amount.')
-
-            
+            return        
 
         elif '偷看一下' in event.message.text:
-            pass
+
+            records = Mongo.find_all()
+            data = [dict(record) for record in records]
+
+            if data:
+                table = tabulate(data, headers="keys", tablefmt="plain", stralign='right')
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='偷看一下! \n-----------------------\n' + table)
+                )
+                # print(table)
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='現在是空的!')
+                )                
+            app.logger.info('Ledger screenshot.')
+            return
 
         elif '功能表' in event.message.text or '指令表' in event.message.text:
             line_bot_api.reply_message(
@@ -120,6 +138,7 @@ def receive_message(event):
                 line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='格式不對 要重新輸入!'))
+            return
 
         else:
 
@@ -150,160 +169,6 @@ def receive_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=resp[num]))
-
-
-
-        # if 'hank' in event.message.text or 'Hank' in event.message.text:
-            
-        #     amount = message.split(' ')[-1]
-
-        #     if amount.isdigit():
-        #         try:
-        #             drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-        #             new_entry(drive, 'hank', amount)
-
-        #             line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='Hank 付了 ' + str(amount) + '\n登記好了!'))
-        #             app.logger.info('New record entered.')
-        #         except ApiRequestError as e:
-        #             line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='連線異常! 發呆!!\n\n' + str(e)))
-        #             app.logger.error('Drive server error.')
-        #         except Exception as e:
-        #             line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
-        #             app.logger.error('Some error.\n' + str(e))
-        #     else:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='格式不對 要重新輸入!'))
-
-        #     return
-
-
-        # elif 'lala' in event.message.text or 'Lala' in event.message.text:
-        #     message = event.message.text
-        #     amount = message.split(' ')[-1]
-
-        #     if amount.isdigit():
-        #         try:
-        #             drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-        #             new_entry(drive, 'lala', amount)
-
-        #             line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='Lala 付了 ' + str(amount) + '\n登記好了!'))
-        #             app.logger.info('New record entered.')
-        #         except ApiRequestError as e:
-        #             line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='連線異常! 發呆!!\n\n' + str(e)))
-        #             app.logger.error('Drive server error.')
-        #         except Exception as e:
-        #             line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='我怪怪的!!\n\n' + str(e)))
-        #             app.logger.error('Some error.\n' + str(e))
-        #     else:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='格式不對 要重新輸入!'))
-        #     return
-
-
-        # elif '結算' in event.message.text or '結清' in event.message.text or '算帳' in event.message.text:
-
-        #     drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-        #     drive.download()            
-        #     df = pd.read_csv('ledger.csv')
-
-        #     hank_minus_lala = df.hank.sum() - df.lala.sum()
-
-        #     if hank_minus_lala > 0:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='Lala 要給 Hank ' + str(hank_minus_lala) + '元!\n帳目已結清'))
-
-        #     elif hank_minus_lala < 0:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='Hank 要給 Lala ' + str(hank_minus_lala*-1) + '元!\n帳目已結清'))
-
-        #     elif hank_minus_lala == 0:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='剛好花一樣錢!! amazing!!'))
-
-        #     df = df[0:0]
-        #     df.to_csv('ledger.csv', index=False)
-        #     drive.upload()
-        #     app.logger.info('Ledger settled.')
-        #     return
-
-        # elif '偷看一下' in event.message.text:
-        #     drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-        #     drive.download()
-        #     df = pd.read_csv('ledger.csv')
-        #     if df.empty:
-        #         line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='現在是空的!'))
-        #     else:
-        #         text = df.to_string(index=False).split('\n')
-        #         nlines = len(text)
-        #         segment_text = ''
-        #         for i in range(nlines):
-        #             segment_text += text[i]
-        #             segment_text += '\n'
-        #             if i % 10 == 0 and i != 0:
-        #                 segment_text += '-----------------\n'
-        #         line_bot_api.reply_message(
-        #             event.reply_token,
-        #             TextSendMessage(text='偷看一下! \n-----------------\n' + segment_text.strip('\n')))
-        #     app.logger.info('Ledger screenshot. ')
-        #     return
-
-        # elif '功能表' in event.message.text or '指令表' in event.message.text:
-        #     line_bot_api.reply_message(
-        #         event.reply_token, 
-        #         TextSendMessage(text='記帳:\nLala or Hank 空一格 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表')
-        #     )
-        #     app.logger.info('Show menu')
-        #     return
-
-        # elif '試算' in event.message.text or '算一下' in event.message.text:
-
-        #     drive = drive_method('ledger.csv', config.get('drive-api', 'file_id'))
-        #     drive.download()            
-        #     df = pd.read_csv('ledger.csv')
-
-        #     hank_minus_lala = df.hank.sum() - df.lala.sum()
-
-        #     if hank_minus_lala > 0:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='Lala 現在欠 Hank ' + str(hank_minus_lala) + '元喔!'))
-
-        #     elif hank_minus_lala < 0:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='Hank 現在欠 Lala ' + str(hank_minus_lala*-1) + '元喔!'))
-
-        #     elif hank_minus_lala == 0:
-        #         line_bot_api.reply_message(
-        #         event.reply_token,
-        #         TextSendMessage(text='現在剛好花一樣錢喔!'))
-        #     app.logger.info('Show current amount.')
-        #     return
-
-    
-
-
-
-
 
 @app.route('/health-check', methods = ['GET'])
 def health_check():
