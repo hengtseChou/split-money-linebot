@@ -98,7 +98,7 @@ def receive_message(event):
             data = [dict(record) for record in records]
 
             if data:
-                table = tabulate(data, headers="keys", tablefmt="plain", stralign='center', numalign="right")
+                table = tabulate(data, headers="keys", tablefmt="plain", numalign="right")
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text='偷看一下! \n-----------------------\n' + table)
@@ -124,7 +124,7 @@ def receive_message(event):
 
             message = event.message.text.split(' ')
             payer = message[0].lower()
-            amount = message[2]
+            amount = message[-1]
 
             if amount.isdigit():
 
