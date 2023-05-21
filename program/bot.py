@@ -8,6 +8,7 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import random
 import logging
 from tabulate import tabulate
+import wcwidth
 
 from program.config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, HANK_ID, LALA_ID
 from program.db import Mongo
