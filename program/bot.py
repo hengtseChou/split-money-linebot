@@ -49,10 +49,46 @@ def receive_message(event):
     if event.source.user_id == LALA_ID or event.source.user_id == HANK_ID:
 
         if '結算' in event.message.text or '結清' in event.message.text or '算帳' in event.message.text:
-            pass
+            
+            pays_more, amount = Mongo.two_sum_difference()
+            if pays_more == 'hank':
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Lala 要給 Hank ' + str(amount) + '元!\n帳目已結清'))
+
+            elif pays_more == 'lala':
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Hank 要給 Lala ' + str(amount) + '元!\n帳目已結清'))
+
+            elif pays_more == 'no_one':
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='剛好花一樣錢!! amazing!!'))
+
+            Mongo.clear()
+            app.logger.info('Records reset.')
 
         elif '試算' in event.message.text or '算一下' in event.message.text:
-            pass
+
+            pays_more, amount = Mongo.two_sum_difference()
+            if pays_more == 'hank':
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Lala 現在欠 Hank ' + str(amount) + '元喔!'))
+
+            elif pays_more == 'lala':
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='Hank 現在欠 Lala ' + str(amount) + '元喔!'))
+
+            elif pays_more == 'no_one':
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='現在剛好花一樣錢喔!'))
+            app.logger.info('Show current amount.')
+
+            
 
         elif '偷看一下' in event.message.text:
             pass

@@ -14,27 +14,37 @@ class Mongo_object(object):
 
         now_time_gmt_plus_8 = datetime.now() + timedelta(hours=8)
         date = now_time_gmt_plus_8.strftime("%m/%d")
-        new_insert = {'date':date, 'payer':payer, 'item': item, 'amount': amount}
+        new_insert = {'date':date, 'payer':payer, 'item': item, 'amount': int(amount)}
         x = self.collection.insert_one(new_insert)
         return x
     
     def clear(self):
 
-        self.drop()
+        self.collection.drop()
     
     def two_sum_difference(self):
 
-        pipeline1 = [
-            {'$match': {'payer': 'hank'}},
-            {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
-        ]
+        sum_values = []
 
-        pipeline2 = [
-            {'$match': {'payer': 'lala'}},
-            {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
-        ]
+        for payer in ['hank', 'lala']:
+            pipeline = [
+                {'$match': {'payer': payer}},
+                {'$group': {'_id': None, 'total': {'$sum': '$amount'}}}
+            ]
+            result = list(self.collection.aggregate(pipeline))
+            if not result:
+                sum_values.append(0)
+            else:
+                sum_values.append(result[0]['total'])
 
-        return
+        if sum_values[0] > sum_values[1]:
+            pays_more = 'hank'
+        elif sum_values[0] < sum_values[1]:
+            pays_more = 'lala'
+        else:
+            pays_more = 'no_one'       
+
+        return pays_more, abs(sum_values[0] - sum_values[1])
     
     def print_records(self):
         
