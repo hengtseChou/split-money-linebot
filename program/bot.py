@@ -122,23 +122,31 @@ def receive_message(event):
 
         elif 'hank' in event.message.text or 'Hank' in event.message.text or 'lala' in event.message.text or 'Lala' in event.message.text: 
 
-            message = event.message.text.split(' ')
-            payer = message[0].lower()
-            amount = message[-1]
+            try:
+                message = event.message.text.split(' ')
+                payer = message[0].lower()
+                amount = message[-1]
 
-            if amount.isdigit():
+                if amount.isdigit()and (payer == 'hank' or payer == 'lala'):
 
-                Mongo.insert_new(payer, amount)
+                    Mongo.insert_new(payer, amount)
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextSendMessage(text=''.join([payer, ' 付了 ', amount, '\n登記好了!'])))
+                    app.logger.info('New record entered.')
+
+                else:
+                    line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='格式不對 要重新輸入!'))
+                return
+            
+            except Exception as e:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=''.join([payer, ' 付了 ', amount, '\n登記好了!'])))
-                app.logger.info('New record entered.')
-
-            else:
-                line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='格式不對 要重新輸入!'))
-            return
+                    TextSendMessage(text='格式不對 要重新輸入!'))
+                app.logger.error(str(e))
+                
 
         else:
 
