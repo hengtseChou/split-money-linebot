@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from pymongo import MongoClient
-from program.config import MONGO_URL, ENV
+from src.config import MONGO_URL, ENV
 
 
 def today_str(env):

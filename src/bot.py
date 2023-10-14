@@ -9,13 +9,13 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from tabulate import tabulate
 
-from program.config import (
+from src.config import (
     CHANNEL_ACCESS_TOKEN,
     CHANNEL_SECRET,
     HANK_ID,
     LALA_ID,
 )
-from program.db import MongoHandler, mongo_handler
+from src.db import MongoHandler, mongo_handler
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
