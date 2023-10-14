@@ -2,7 +2,6 @@ import logging
 import random
 import time
 
-import wcwidth
 from flask import Flask, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -101,7 +100,7 @@ def receive_message(event: MessageEvent):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                text="記帳:\nLala or Hank 項目 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表"
+                text="記帳:\nLala or Hank 項目 金額\n----------\n其他功能:\n目前帳目->偷看一下\n試算金額->算一下/試算\n導覽頁面->指令表/功能表\n重設帳目->結算/結清/算帳"
             ),
         )
         app.logger.info("Show menu")
