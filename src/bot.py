@@ -9,15 +9,12 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from tabulate import tabulate
 
-from src.config import (
-    CHANNEL_ACCESS_TOKEN,
-    CHANNEL_SECRET,
-    HANK_ID,
-    LALA_ID,
-)
+from src.config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ENV, HANK_ID, LALA_ID
 from src.db import MongoHandler, mongo_handler
 
 app = Flask(__name__)
+if ENV == "develop":
+    app.config["DEBUG"] = True
 app.logger.setLevel(logging.INFO)
 
 
@@ -25,7 +22,7 @@ line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
 
-def calc_difference_in_sum(mongo_handler: MongoHandler):
+def calc_difference_in_sum(mongo_handler: MongoHandler) -> int:
     sum_values = {"hank": 0, "lala": 0}
     for payer in ["hank", "lala"]:
         pipeline = [{"$group": {"_id": None, "total": {"$sum": "$" + payer}}}]
@@ -33,32 +30,25 @@ def calc_difference_in_sum(mongo_handler: MongoHandler):
         if result:
             sum_values[payer] += result[0]["total"]
 
-    if sum_values["hank"] > sum_values["lala"]:
-        pays_more = "hank"
-    elif sum_values["hank"] < sum_values["lala"]:
-        pays_more = "lala"
-    else:
-        pays_more = "no_one"
-    return pays_more, abs(sum_values["hank"] - sum_values["lala"])
+    return sum_values["hank"] - sum_values["lala"]
+
 
 def send_calc_result_msg(event):
-    pays_more, amount = calc_difference_in_sum(mongo_handler)
-    if pays_more == "hank":
+    amount = calc_difference_in_sum(mongo_handler)
+    if amount > 0:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text="Lala 現在欠 Hank " + str(amount) + "元喔!"),
         )
 
-    elif pays_more == "lala":
+    elif amount < 0:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="Hank 現在欠 Lala " + str(amount) + "元喔!"),
+            TextSendMessage(text="Hank 現在欠 Lala " + str(abs(amount)) + "元喔!"),
         )
 
-    elif pays_more == "no_one":
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="現在剛好花一樣錢喔!")
-        )
+    elif amount == 0:
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="現在剛好花一樣錢喔!"))
 
 
 @app.route("/callback", methods=["POST"])
@@ -84,7 +74,6 @@ def receive_message(event: MessageEvent):
     if not (user_id == LALA_ID or user_id == HANK_ID):
         return
     if any(x in event.message.text for x in ["結算", "結清", "算帳"]):
-
         send_calc_result_msg(event)
         mongo_handler.clear_all()
         app.logger.info("Records reset.")
@@ -167,4 +156,4 @@ def health_check():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
