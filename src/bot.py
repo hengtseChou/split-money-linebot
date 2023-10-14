@@ -26,7 +26,7 @@ def calc_difference_in_sum(mongo_handler: MongoHandler) -> int:
     sum_values = {"hank": 0, "lala": 0}
     for payer in ["hank", "lala"]:
         pipeline = [{"$group": {"_id": None, "total": {"$sum": "$" + payer}}}]
-        result = mongo_handler.records.aggregate(pipeline)
+        result = list(mongo_handler.records.aggregate(pipeline))
         if result:
             sum_values[payer] += result[0]["total"]
 
