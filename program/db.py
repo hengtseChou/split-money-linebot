@@ -1,56 +1,40 @@
-import pymongo
 from datetime import datetime, timedelta
-from program.config import MONGO_URL
 
-class Mongo_object(object):
+from pymongo import MongoClient
+from program.config import MONGO_URL, ENV
 
-    def __init__(self):
 
-        client = pymongo.MongoClient(MONGO_URL, connect=False)
+def today_str(env):
+    if env == "develop":
+        return datetime.now().strftime("%m/%d")
+    elif env == "prod":
+        return (datetime.now() + timedelta(hours=8)).strftime("%m/%d")
+
+
+class MongoHandler:
+    def __init__(self, mongo_url) -> None:
+        client = MongoClient(mongo_url, connect=False)
         db = client["money_bot"]
-        self.collection = db["records"]
+        self._collection = db["records"]
 
-    def insert_new(self, payer, amount):
+    @property
+    def records(self):
+        return self._collection
 
-        now_time_gmt_plus_8 = datetime.now() + timedelta(hours=8)
-        date = now_time_gmt_plus_8.strftime("%m/%d")
-        if payer == 'hank':
-            new_insert = {'date':date, 'hank': int(amount), 'lala':0}
-        elif payer == 'lala':
-            new_insert = {'date':date, 'hank': 0, 'lala': int(amount)}
-        x = self.collection.insert_one(new_insert)
-        return x
-    
-    def clear(self):
+    def new_record(self, payer, amount):
+        date = today_str(ENV)
+        if payer == "hank":
+            new_insert = {"date": date, "hank": int(amount), "lala": 0}
+        elif payer == "lala":
+            new_insert = {"date": date, "hank": 0, "lala": int(amount)}
+        self._collection.insert_one(new_insert)
 
-        self.collection.drop()
-    
-    def two_sum_difference(self):
+    def all_records(self):
+        result = self._collection.find({}, {"_id": 0})
+        return list(result)
 
-        sum_values = []
+    def clear_all(self):
+        self._collection.drop()
 
-        for payer in ['hank', 'lala']:
-            pipeline = [
-                {'$group': {'_id': None, 'total': {'$sum': '$'+payer}}}
-            ]
-            result = list(self.collection.aggregate(pipeline))
-            if not result:
-                sum_values.append(0)
-            else:
-                sum_values.append(result[0]['total'])
 
-        if sum_values[0] > sum_values[1]:
-            pays_more = 'hank'
-        elif sum_values[0] < sum_values[1]:
-            pays_more = 'lala'
-        else:
-            pays_more = 'no_one'       
-
-        return pays_more, abs(sum_values[0] - sum_values[1])
-    
-    def find_all(self):
-        
-        cursor = self.collection.find({}, {'_id': 0})
-        return cursor
-
-Mongo = Mongo_object()
+mongo_handler = MongoHandler(MONGO_URL)
