@@ -1,10 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from src.config import ENV
 
-if ENV == "develop":
-    load_dotenv()
+load_dotenv()
 
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.getenv("CHANNEL_SECRET")
