@@ -1,9 +1,10 @@
 import os
 
 from dotenv import load_dotenv
+from src.config import ENV
 
-if not load_dotenv():
-    raise Exception(".env file not found.")
+if ENV == "develop":
+    load_dotenv()
 
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.getenv("CHANNEL_SECRET")
