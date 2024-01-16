@@ -8,8 +8,8 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from tabulate import tabulate
 
-from src.config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ENV, HANK_ID, LALA_ID
-from src.db import MongoHandler, mongo_handler
+from .config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ENV, HANK_ID, LALA_ID
+from .db import MongoHandler, mongo_handler
 
 app = Flask(__name__)
 if ENV == "develop":
@@ -47,7 +47,9 @@ def send_calc_result_msg(event):
         )
 
     elif amount == 0:
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="現在剛好花一樣錢喔!"))
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text="現在剛好花一樣錢喔!")
+        )
 
 
 @app.route("/callback", methods=["POST"])
@@ -59,7 +61,9 @@ def callback():
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
-        print("Invalid signature. Please check your channel access token/channel secret.")
+        print(
+            "Invalid signature. Please check your channel access token/channel secret."
+        )
         abort(400)
     return "OK"
 
@@ -86,13 +90,17 @@ def receive_message(event: MessageEvent):
     elif "偷看一下" in event.message.text:
         records = mongo_handler.all_records()
         if records:
-            table = tabulate(records, headers="keys", tablefmt="plain", numalign="right")
+            table = tabulate(
+                records, headers="keys", tablefmt="plain", numalign="right"
+            )
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text="偷看一下! \n-----------------------\n" + table),
             )
         else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="現在是空的!"))
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="現在是空的!")
+            )
         app.logger.info("Ledger screenshot.")
         return
 
@@ -153,6 +161,10 @@ def receive_message(event: MessageEvent):
 def health_check():
     return "OK"
 
+@app.route("/1219")
+def for_lala_1219():
+    line_bot_api.push_message(LALA_ID, TextSendMessage(text="1219"))
+    return "OK"
 
 if __name__ == "__main__":
     app.run()
