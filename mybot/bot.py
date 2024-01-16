@@ -164,6 +164,7 @@ def health_check():
 @app.route("/1219")
 def for_lala_1219():
     line_bot_api.push_message(LALA_ID, TextSendMessage(text="1219"))
+    app.logger.info("1219")
     return "OK"
 
 if __name__ == "__main__":
