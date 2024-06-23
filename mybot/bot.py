@@ -73,6 +73,12 @@ def receive_message(event: MessageEvent):
     # main feature of split money linebot
     # hank and lala only
     user_id = event.source.user_id
+    if "my id" in event.message.text.strip(" ").lower():
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=user_id),
+        )
+        return
 
     if not (user_id == LALA_ID or user_id == HANK_ID):
         return
@@ -86,16 +92,6 @@ def receive_message(event: MessageEvent):
         send_calc_result_msg(event)
         app.logger.info("Show current amount.")
         return
-    
-    elif "我的id" in event.message.text:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                text=user_id
-            ),
-        )
-        return
-
 
     elif "偷看一下" in event.message.text:
         records = mongo_handler.all_records()
@@ -171,11 +167,13 @@ def receive_message(event: MessageEvent):
 def health_check():
     return "OK"
 
+
 @app.route("/1219")
 def for_lala_1219():
     line_bot_api.push_message(LALA_ID, TextSendMessage(text="1219"))
     app.logger.info("1219")
     return "OK"
+
 
 if __name__ == "__main__":
     app.run()
