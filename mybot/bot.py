@@ -12,7 +12,7 @@ from .config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ENV, HANK_ID, LALA_ID
 from .db import MongoHandler, mongo_handler
 
 app = Flask(__name__)
-if ENV == "develop":
+if ENV == "debug":
     app.config["DEBUG"] = True
 app.logger.setLevel(logging.INFO)
 
@@ -86,6 +86,16 @@ def receive_message(event: MessageEvent):
         send_calc_result_msg(event)
         app.logger.info("Show current amount.")
         return
+    
+    elif "我的id" in event.message.text:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text=user_id
+            ),
+        )
+        return
+
 
     elif "偷看一下" in event.message.text:
         records = mongo_handler.all_records()
