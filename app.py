@@ -8,8 +8,8 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from tabulate import tabulate
 
-from .config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ENV, HANK_ID, LALA_ID
-from .db import MongoHandler, mongo_handler
+from config import CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, ENV, HANK_ID, LALA_ID
+from db import MongoHandler, mongo_handler
 
 app = Flask(__name__)
 if ENV == "debug":
