@@ -73,25 +73,33 @@ def receive_message(event: MessageEvent):
     # main feature of split money linebot
     # hank and lala only
     user_id = event.source.user_id
+
     if "my id" in event.message.text.strip(" ").lower():
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=user_id),
         )
-        return
 
-    if not (user_id == LALA_ID or user_id == HANK_ID):
-        return
-    if any(x in event.message.text for x in ["結算", "結清", "算帳"]):
+    elif not (user_id == LALA_ID or user_id == HANK_ID):
+        pass
+
+    elif user_id == LALA_ID and "寶寶" in event.message.text:
+        line_bot_api.push_message(LALA_ID, TextSendMessage(text="是喔"))
+        time.sleep(0.5)
+        line_bot_api.push_message(LALA_ID, TextSendMessage(text="澳草喔"))
+        time.sleep(0.5)
+        line_bot_api.push_message(LALA_ID, TextSendMessage(text="愛你喔"))
+        time.sleep(0.5)
+        line_bot_api.push_message(LALA_ID, TextSendMessage(text="寶寶"))
+
+    elif any(x in event.message.text for x in ["結算", "結清", "算帳"]):
         send_calc_result_msg(event)
         mongo_handler.clear_all()
         app.logger.info("Records reset.")
-        return
 
     elif any(x in event.message.text for x in ["試算", "算一下"]):
         send_calc_result_msg(event)
         app.logger.info("Show current amount.")
-        return
 
     elif "偷看一下" in event.message.text:
         records = mongo_handler.all_records()
@@ -108,7 +116,6 @@ def receive_message(event: MessageEvent):
                 event.reply_token, TextSendMessage(text="現在是空的!")
             )
         app.logger.info("Ledger screenshot.")
-        return
 
     elif any(x in event.message.text for x in ["功能表", "指令表"]):
         line_bot_api.reply_message(
@@ -118,7 +125,6 @@ def receive_message(event: MessageEvent):
             ),
         )
         app.logger.info("Show menu")
-        return
 
     elif any(x in event.message.text for x in ["hank", "Hank", "lala", "Lala"]):
         try:
@@ -138,29 +144,18 @@ def receive_message(event: MessageEvent):
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(text="格式不對 要重新輸入!")
                 )
-            return
 
         except Exception as e:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="格式不對 要重新輸入!")
             )
             app.logger.error(str(e))
-            return
 
-    if user_id == LALA_ID and "寶寶" in event.message.text:
-        line_bot_api.push_message(LALA_ID, TextSendMessage(text="是喔"))
-        time.sleep(0.5)
-        line_bot_api.push_message(LALA_ID, TextSendMessage(text="澳草喔"))
-        time.sleep(0.5)
-        line_bot_api.push_message(LALA_ID, TextSendMessage(text="愛你喔"))
-        time.sleep(0.5)
-        line_bot_api.push_message(LALA_ID, TextSendMessage(text="寶寶"))
-        return
-
-    resp = ["哈哈 真假", "0.0", "7414", "喵喵喵"]
-    num = random.randint(0, len(resp) - 1)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=resp[num]))
-    return
+    else:
+        resp = ["哈哈 真假", "0.0", "7414", "喵喵喵"]
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=random.choice(resp))
+        )
 
 
 @app.route("/health-check", methods=["GET"])
